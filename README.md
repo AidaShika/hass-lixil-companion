@@ -6,6 +6,8 @@ An unofficial companion integration that makes it much easier to add LIXIL resid
 
 > Unofficial community project. Not affiliated with LIXIL or Life Assist2.
 
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AidaShika&repository=hass-lixil-companion&category=integration)
+
 ---
 
 <a id="中文"></a>
@@ -27,16 +29,25 @@ LIXIL 的住宅摄像头（如 Life Assist2 生态的 LS279）大多是大华 OE
 - 摄像头与 HA 在同一局域网
 - 已验证机型：**LS279**（固件 2.800.1E8C000.0.R，2026-10-24 实测）。其他大华 OEM 的 LIXIL 机型理论上可用，未逐一验证。
 
+### 兼容性与实测征集
+
+| 型号 | 固件 | 状态 | 已验证内容 |
+| --- | --- | --- | --- |
+| LS279 | 2.800.1E8C000.0.R | 作者实测通过 | 自动发现、向导添加、快照、IP 漂移自愈、守护实体 |
+| 其他 LIXIL LS 系列 / 大华 OEM 型号 | — | 待验证 | 欢迎提交兼容性报告 |
+
+提交兼容性报告时请提供型号、PID、固件、Home Assistant 与 ha-dahua 版本，以及发现/向导/守护的结果。**不要公开**安全码（SC）、二维码完整内容、密码、完整序列号或可从外网访问的地址。
+
 ### 安装
 
-**HACS（推荐）**：HACS → 集成 → 右上角菜单 → 自定义仓库，填入本仓库地址 `https://github.com/AidaShika/hass-lixil-companion`，类别选 Integration，添加后下载 “LIXIL Companion”，重启 HA。
+**HACS（推荐）**：点击页面顶部的 HACS 徽章可直接打开添加页面；也可以手动进入 HACS → 集成 → 右上角菜单 → 自定义仓库，填入本仓库地址 `https://github.com/AidaShika/hass-lixil-companion`，类别选 Integration，添加后下载 “LIXIL Companion”，重启 HA。
 
 **手动**：把 `custom_components/lixil_companion` 整个文件夹拷到 HA 的 `config/custom_components/` 下，重启 HA。
 
 ### 使用
 
-1. 设置 → 设备与服务 → 添加集成 → 搜索 “LIXIL Companion”
-2. 填摄像头 IP（向导会先探测确认设备可达且像大华系）
+1. 设置 → 设备与服务 → 添加集成 → 搜索 “LIXIL Companion”（若 HA 已显示 DHCP 发现提示，也可以从那里进入）
+2. 等待向导扫描局域网（通常不到一分钟），从候选列表选择摄像头；若没有扫到，可选择手动输入 IP，向导会探测并确认它像大华系设备
 3. 用手机扫说明书上的二维码，把解码文本粘贴进来（形如 `{SN:…, SC:…, PID:…}`，其中 SC 就是设备密码）
 4. 确认名称，完成。向导会校验序列号、驱动 ha-dahua 建好条目，并抓一张快照验证真的通了
 
@@ -76,16 +87,25 @@ LIXIL の住宅用カメラ（Life Assist2 の LS279 など）の多くは大華
 - カメラと HA が同一 LAN 内にあること
 - 対応確認済み機種：**LS279**（ファームウェア 2.800.1E8C000.0.R、2026-10-24 実測）。他の Dahua OEM の LIXIL 機種は理論上動作しますが未検証です。
 
+### 対応状況と実測募集
+
+| 機種 | ファームウェア | 状態 | 確認済み内容 |
+| --- | --- | --- | --- |
+| LS279 | 2.800.1E8C000.0.R | 作者実測済み | 自動検出、ウィザード追加、スナップショット、IP 変動の自己修復、ガーディアンエンティティ |
+| その他の LIXIL LS シリーズ / Dahua OEM 機種 | — | 未検証 | 互換性レポートを歓迎します |
+
+互換性レポートには、機種、PID、ファームウェア、Home Assistant と ha-dahua のバージョン、検出／ウィザード／ガーディアンの結果を記載してください。セキュリティコード（SC）、QR コードの全文、パスワード、完全なシリアル番号、外部から到達可能なアドレスは**公開しないでください**。
+
 ### インストール
 
-**HACS（推奨）**：HACS → 統合 → 右上メニュー → カスタムリポジトリに `https://github.com/AidaShika/hass-lixil-companion` を追加（カテゴリ：Integration）、「LIXIL Companion」をダウンロードして HA を再起動。
+**HACS（推奨）**：ページ上部の HACS バッジから追加画面を直接開けます。手動の場合は HACS → 統合 → 右上メニュー → カスタムリポジトリに `https://github.com/AidaShika/hass-lixil-companion` を追加（カテゴリ：Integration）し、「LIXIL Companion」をダウンロードして HA を再起動してください。
 
 **手動**：`custom_components/lixil_companion` フォルダを HA の `config/custom_components/` にコピーし、HA を再起動。
 
 ### 使い方
 
-1. 設定 → デバイスとサービス → 統合を追加 → 「LIXIL Companion」を検索
-2. カメラの IP を入力（到達可能性と Dahua 系かどうかの指紋を確認します）
+1. 設定 → デバイスとサービス → 統合を追加 → 「LIXIL Companion」を検索（HA に DHCP 検出の通知が出ている場合は、そこから開始することもできます）
+2. ウィザードが LAN をスキャンするまで待ち（通常 1 分未満）、候補からカメラを選択します。見つからない場合は手動で IP を入力でき、到達可能性と Dahua 系かどうかの指紋を確認します
 3. スマホで説明書の QR を読み取り、デコード済みテキストを貼り付け（`{SN:…, SC:…, PID:…}` 形式。SC がデバイスのパスワードです）
 4. 名前を確認して完了。シリアル照合 → ha-dahua のエントリ作成 → スナップショット取得まで自動で検証します
 
@@ -125,16 +145,25 @@ Many LIXIL residential cameras (e.g. the Life Assist2 LS279) are Dahua OEM devic
 - Camera and Home Assistant on the same LAN
 - Verified device: **LS279** (firmware 2.800.1E8C000.0.R, tested 2026-10-24). Other Dahua-OEM LIXIL models should work but are unverified.
 
+### Compatibility and call for testers
+
+| Model | Firmware | Status | Verified |
+| --- | --- | --- | --- |
+| LS279 | 2.800.1E8C000.0.R | Tested by the author | Discovery, wizard setup, snapshot, IP-drift healing, guardian entities |
+| Other LIXIL LS-series / Dahua-OEM models | — | Unverified | Compatibility reports welcome |
+
+For a compatibility report, include the model, PID, firmware, Home Assistant and ha-dahua versions, and the discovery / wizard / guardian results. **Never publish** the security code (SC), full QR contents, a password, a full serial number, or a publicly reachable address.
+
 ### Installation
 
-**HACS (recommended)**: HACS → Integrations → top-right menu → Custom repositories → add `https://github.com/AidaShika/hass-lixil-companion` as an Integration, download “LIXIL Companion”, then restart Home Assistant.
+**HACS (recommended)**: use the HACS badge at the top of this page to open the add-repository flow, or add it manually from HACS → Integrations → top-right menu → Custom repositories → `https://github.com/AidaShika/hass-lixil-companion` as an Integration. Download “LIXIL Companion”, then restart Home Assistant.
 
 **Manual**: copy the `custom_components/lixil_companion` folder into your HA `config/custom_components/` directory and restart Home Assistant.
 
 ### Usage
 
-1. Settings → Devices & services → Add integration → search “LIXIL Companion”
-2. Enter the camera's IP (the wizard probes it and checks the Dahua fingerprint)
+1. Settings → Devices & services → Add integration → search “LIXIL Companion” (or start from Home Assistant's DHCP discovery notification if one appears)
+2. Wait for the wizard to scan the LAN (normally under a minute) and select the camera from the candidate list. If it is not found, choose manual IP entry; the wizard probes it and checks the Dahua fingerprint
 3. Scan the QR code in the manual with your phone and paste the decoded text (format `{SN:…, SC:…, PID:…}` — the SC is the device password)
 4. Confirm the name. The wizard verifies the serial number, creates the ha-dahua entry, and takes a snapshot to prove the camera really works
 

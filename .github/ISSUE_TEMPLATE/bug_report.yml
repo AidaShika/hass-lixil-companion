@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible problem with LIXIL Companion
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. **Never include the security code (SC), the full QR-code contents, a camera password, a full serial number, or a publicly reachable address.** Redact private network details from logs and screenshots when they are not essential.
+  - type: input
+    id: companion_version
+    attributes:
+      label: LIXIL Companion version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.10.2"
+    validations:
+      required: true
+  - type: input
+    id: dahua_version
+    attributes:
+      label: ha-dahua version
+      placeholder: "e.g. the version shown in HACS"
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Camera model and firmware
+      placeholder: "LS279, firmware 2.800.1E8C000.0.R"
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+      description: Include the wizard or guardian step where the problem occurred and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste only the relevant, redacted log lines. Do not attach a full Home Assistant log without reviewing it first.
+      render: shell
+    validations:
+      required: false
