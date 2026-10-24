@@ -1,1 +1,44 @@
-{"config":{"abort":{"dahua_not_installed":"The ha-dahua integration is not installed. Install it from HACS first, then run this setup again.","drive_not_implemented":"Under development."},"error":{"address_required":"Please enter the camera IP address.","auth_failed":"The camera rejected the login. Check that the security code from the QR code is correct.","dahua_already_configured":"This camera is already set up in ha-dahua.","device_unreachable":"Nothing responded at that address. Check the IP and that the camera is powered and on the same network.","drive_failed":"Adding the camera through ha-dahua failed. Try adding it from the ha-dahua integration directly, then run this setup to manage it.","drive_timeout":"ha-dahua took too long to discover the camera. Check the camera is reachable, then try again.","qr_empty":"Nothing was pasted.","qr_missing_sc":"No security code (SC) was found in that text. Paste the full QR code text from the manual.","qr_unrecognized":"That text is not a QR payload and not a plain security code.","serial_missing":"The camera answered but did not return a serial number.","sn_mismatch":"The serial number in that QR code does not match this camera. Check you scanned the right camera's manual."},"step":{"confirm":{"data":{"name":"Device name"},"description":"Ready to add the camera at {address} through ha-dahua. The serial number is verified against your QR code first.","title":"Add camera"},"qr":{"data":{"qr_text":"QR code text (or security code)"},"description":"Scan the QR code in the camera manual with your phone, then paste the decoded text here. The security code is extracted automatically. You can also paste just the security code.","title":"Paste the QR code text"},"user":{"data":{"address":"Camera IP address"},"description":"Enter the camera's IP address on your local network. Tip: in your router's device list, look for the camera by its MAC address.","title":"Find your LIXIL camera"}}}}
+{
+  "config": {
+    "abort": {
+      "dahua_not_installed": "The ha-dahua integration is not installed. Install it from HACS first, then run this setup again.",
+      "drive_not_implemented": "Under development."
+    },
+    "error": {
+      "address_required": "Please enter the camera IP address.",
+      "auth_failed": "The camera rejected the login. Check that the security code from the QR code is correct.",
+      "dahua_already_configured": "This camera is already set up in ha-dahua.",
+      "device_unreachable": "Nothing responded at that address. Check the IP and that the camera is powered and on the same network.",
+      "drive_failed": "Adding the camera through ha-dahua failed. Try adding it from the ha-dahua integration directly, then run this setup to manage it.",
+      "drive_timeout": "ha-dahua took too long to discover the camera. Check the camera is reachable, then try again.",
+      "qr_empty": "Nothing was pasted.",
+      "qr_missing_sc": "No security code (SC) was found in that text. Paste the full QR code text from the manual.",
+      "qr_unrecognized": "That text is not a QR payload and not a plain security code.",
+      "serial_missing": "The camera answered but did not return a serial number.",
+      "sn_mismatch": "The serial number in that QR code does not match this camera. Check you scanned the right camera's manual."
+    },
+    "step": {
+      "confirm": {
+        "data": {
+          "name": "Device name"
+        },
+        "description": "Ready to add the camera at {address}.\n\nWhat happens next: the integration signs in to the camera and checks that its serial number matches your QR code, creates the ha-dahua entry for you, and takes a test snapshot to confirm the camera really works. From then on, the IP guardian checks the address every hour and repairs it automatically if the camera's IP changes.",
+        "title": "Add camera"
+      },
+      "qr": {
+        "data": {
+          "qr_text": "QR code text (or security code)"
+        },
+        "description": "Scan the QR code printed in the camera's manual (or on its label) with your phone, then paste the decoded text here. It contains the device serial number (SN) and the security code (SC), which is the camera's password.\n\nThe security code is extracted automatically and handed straight to ha-dahua — this companion never stores it. Pasting only the security code also works.",
+        "title": "Paste the QR code text"
+      },
+      "user": {
+        "data": {
+          "address": "Camera IP address"
+        },
+        "description": "This companion adds a LIXIL camera to Home Assistant through the ha-dahua integration, then keeps an eye on its IP address.\n\nEnter the camera's IP address on your local network. You can find it in your router's list of connected devices — the camera's MAC address starts with 1C:4D:89 on the verified model. After you enter it, the camera is probed to check that it answers like a Dahua-based device.",
+        "title": "Find your LIXIL camera"
+      }
+    }
+  }
+}

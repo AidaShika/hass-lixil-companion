@@ -1,0 +1,44 @@
+{
+  "config": {
+    "abort": {
+      "dahua_not_installed": "尚未安装 ha-dahua 集成。请先从 HACS 安装 ha-dahua，再重新运行本向导。",
+      "drive_not_implemented": "开发中。"
+    },
+    "error": {
+      "address_required": "请输入摄像头的 IP 地址。",
+      "auth_failed": "摄像头拒绝了登录。请检查二维码里的安全码（SC）是否正确。",
+      "dahua_already_configured": "这个摄像头已在 ha-dahua 中添加过。",
+      "device_unreachable": "该地址没有任何响应。请检查 IP，并确认摄像头已通电且在同一网络。",
+      "drive_failed": "通过 ha-dahua 添加失败。可以先在 ha-dahua 集成里直接添加，再运行本向导接管管理。",
+      "drive_timeout": "ha-dahua 发现摄像头超时。请确认摄像头可达后重试。",
+      "qr_empty": "还没有粘贴任何内容。",
+      "qr_missing_sc": "这段文本里找不到安全码（SC）。请粘贴说明书二维码的完整解码文本。",
+      "qr_unrecognized": "这既不是二维码文本，也不是单独的安全码。",
+      "serial_missing": "摄像头有响应，但没有返回序列号。",
+      "sn_mismatch": "二维码里的序列号与这台摄像头不一致。请确认扫的是这台摄像头的说明书。"
+    },
+    "step": {
+      "confirm": {
+        "data": {
+          "name": "设备名称"
+        },
+        "description": "即将把 {address} 的摄像头接入。\n\n接下来会发生：集成登录摄像头、核对它的序列号与二维码一致、替你建好 ha-dahua 条目，并拍一张测试快照确认真的能出图。之后 IP 守护会每小时检查一次地址，摄像头 IP 变化时自动修复。",
+        "title": "添加摄像头"
+      },
+      "qr": {
+        "data": {
+          "qr_text": "二维码文本（或安全码）"
+        },
+        "description": "用手机扫描说明书（或机身标签）上的二维码，把解码出的文本粘贴到这里。文本里包含设备序列号（SN）和安全码（SC，即摄像头密码）。\n\n安全码会被自动提取并直接交给 ha-dahua，本伴侣集成绝不保存它。只粘贴安全码本身也可以。",
+        "title": "粘贴二维码文本"
+      },
+      "user": {
+        "data": {
+          "address": "摄像头 IP 地址"
+        },
+        "description": "本伴侣集成通过 ha-dahua 把 LIXIL 摄像头接入 Home Assistant，之后持续守护它的 IP 地址。\n\n请输入摄像头在局域网内的 IP 地址。可以在路由器的已连接设备列表里找（已验证机型的 MAC 地址以 1C:4D:89 开头）。填入后，向导会实际探测一次，确认它像一台大华系设备。",
+        "title": "找到你的 LIXIL 摄像头"
+      }
+    }
+  }
+}
