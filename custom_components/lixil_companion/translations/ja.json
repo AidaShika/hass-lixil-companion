@@ -2,7 +2,8 @@
   "config": {
     "abort": {
       "dahua_not_installed": "ha-dahua 統合がインストールされていません。先に HACS から ha-dahua をインストールしてから、この設定をやり直してください。",
-      "drive_not_implemented": "開発中です。"
+      "drive_not_implemented": "開発中です。",
+      "not_dahua_camera": "このデバイスは Dahua 系カメラらしい応答をしなかったため、設定をスキップしました。"
     },
     "error": {
       "address_required": "カメラの IP アドレスを入力してください。",
@@ -51,6 +52,24 @@
         },
         "description": "ローカルネットワークを自動スキャンし、Dahua 系デバイスらしい応答があったカメラを一覧にしました。追加するカメラを選んでください。\n\nカメラが一覧にない場合（別サブネットにある場合など）は、手動入力を選んでください。",
         "title": "カメラを選ぶ"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "rescan": {
+        "name": "今すぐ再スキャン"
+      }
+    },
+    "sensor": {
+      "current_ip": {
+        "name": "現在の IP"
+      },
+      "drift_count": {
+        "name": "IP 変更の修復回数"
+      },
+      "last_check": {
+        "name": "前回のガーディアン確認"
       }
     }
   }

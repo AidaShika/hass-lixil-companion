@@ -17,7 +17,8 @@ LIXIL 的住宅摄像头（如 Life Assist2 生态的 LS279）大多是大华 OE
 
 - **发现与识别**：扫描局域网，按端口、协议指纹和 MAC 厂商前缀判断哪台是大华系摄像头。
 - **二维码向导**：把说明书二维码的解码文本粘贴进来，自动提取安全码（SC），并登录设备读取真实序列号与二维码里的 SN 交叉校验；校验通过后在后台驱动 ha-dahua 完成添加。
-- **IP 自愈守护**：添加后每小时（以及启动 60 秒后）按 MAC 核查摄像头 IP；发现漂移就自动更新 ha-dahua 条目的地址并重载。作者实测：IP 从 .15 变为 .115 后，约 90 秒自动恢复，快照正常。
+- **IP 自愈守护**：添加后每小时（以及启动 60 秒后）按 MAC 核查摄像头 IP；发现漂移就自动更新 ha-dahua 条目的地址并重载。作者实测：IP 从 .15 变为 .115 后，约 90 秒自动恢复，快照正常。守护状态看得见：设备页有当前 IP、上次检查时间、已修复次数三个实体，外加一个“立即重新扫描”按钮。
+- **自动发现**：带大华 MAC 前缀的新设备拿到 DHCP 地址时，HA 会主动弹出发现提示，点一下就进向导（会先指纹确认，门铃/NVR 等其他大华设备不会误触发）。
 
 ### 要求
 
@@ -52,7 +53,7 @@ LIXIL 的住宅摄像头（如 Life Assist2 生态的 LS279）大多是大华 OE
 
 ### 状态
 
-v0.1.7，2026-10-24 在作者家 LS279 上完成端到端实测（发现 → 向导添加 → IP 漂移自愈）。
+v0.2.0，2026-10-24 在作者家 LS279 上完成端到端实测（发现 → 向导添加 → IP 漂移自愈）。
 
 ---
 
@@ -65,7 +66,8 @@ LIXIL の住宅用カメラ（Life Assist2 の LS279 など）の多くは大華
 
 - **検出と判定**：LAN をスキャンし、ポート・プロトコルの指紋と MAC のベンダープレフィックスから Dahua 系カメラを判定。
 - **QR ウィザード**：説明書 QR コードのデコード済みテキストを貼るだけでセキュリティコード（SC）を自動抽出。デバイスにログインして実シリアル番号を読み、QR の SN と照合してから、裏側で ha-dahua の追加フローを駆動します。
-- **IP 自己修復ガーディアン**：追加後は 1 時間ごと（と起動 60 秒後）に MAC で IP を確認し、変わっていれば ha-dahua のアドレスを自動更新して再読み込みします。実測：IP が .15 → .115 に変わった際、約 90 秒で自動復旧しスナップショットも正常に戻りました。
+- **IP 自己修復ガーディアン**：追加後は 1 時間ごと（と起動 60 秒後）に MAC で IP を確認し、変わっていれば ha-dahua のアドレスを自動更新して再読み込みします。実測：IP が .15 → .115 に変わった際、約 90 秒で自動復旧しスナップショットも正常に戻りました。ガーディアンの状態はデバイスページで見えます（現在の IP・前回確認時刻・修復回数のエンティティ＋「今すぐ再スキャン」ボタン）。
+- **自動検出**：Dahua の MAC プレフィックスを持つ新しいデバイスが DHCP でアドレスを取得すると、HA が検出を通知し、タップひとつでウィザードが始まります（指紋確認を通るため、インターホンや NVR など他の Dahua 機器では誤作動しません）。
 
 ### 要件
 
@@ -100,7 +102,7 @@ LIXIL の住宅用カメラ（Life Assist2 の LS279 など）の多くは大華
 
 ### 状態
 
-v0.1.7。2026-10-24 に作者宅の LS279 でエンドツーエンド実測済み（検出 → ウィザード追加 → IP 変動の自己修復）。
+v0.2.0。2026-10-24 に作者宅の LS279 でエンドツーエンド実測済み（検出 → ウィザード追加 → IP 変動の自己修復）。
 
 ---
 
@@ -113,7 +115,8 @@ Many LIXIL residential cameras (e.g. the Life Assist2 LS279) are Dahua OEM devic
 
 - **Discovery & fingerprinting**: scans the LAN and identifies Dahua-based cameras by open ports, protocol fingerprints, and MAC vendor prefixes.
 - **QR setup wizard**: paste the decoded text of the QR code printed in the manual; the wizard extracts the security code (SC), logs in to the device to read its real serial number, cross-checks it against the QR's SN, then drives the ha-dahua config flow for you.
-- **IP guardian**: after setup, it checks the camera's IP by MAC every hour (and 60 s after start). If the address drifted, it updates the ha-dahua entry and reloads it. Measured on the author's camera: after an IP change from .15 to .115, the camera recovered automatically in about 90 seconds, snapshots included.
+- **IP guardian**: after setup, it checks the camera's IP by MAC every hour (and 60 s after start). If the address drifted, it updates the ha-dahua entry and reloads it. Measured on the author's camera: after an IP change from .15 to .115, the camera recovered automatically in about 90 seconds, snapshots included. The guardian is visible on the device page: current IP, last check time, repairs count, plus a Rescan now button.
+- **Auto-discovery**: when a new device with a Dahua MAC prefix takes a DHCP lease, Home Assistant offers setup proactively — and the wizard still fingerprint-checks it first, so Dahua intercoms or NVRs do not trigger false positives.
 
 ### Requirements
 
@@ -148,7 +151,7 @@ Many LIXIL residential cameras (e.g. the Life Assist2 LS279) are Dahua OEM devic
 
 ### Status
 
-v0.1.7. End-to-end tested on the author's LS279 on 2026-10-24 (discovery → wizard setup → IP-drift self-healing).
+v0.2.0. End-to-end tested on the author's LS279 on 2026-10-24 (discovery → wizard setup → IP-drift self-healing).
 
 ---
 

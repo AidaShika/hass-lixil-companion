@@ -137,3 +137,17 @@ class CandidateOptionsTests(unittest.TestCase):
         self.assertEqual(list(opts), ["192.168.11.115"])
 
 
+
+
+class NormalizeMacTests(unittest.TestCase):
+    def test_separator_free_from_dhcp(self):
+        self.assertEqual(d.normalize_mac("1C4D895D25A0"), "1c:4d:89:5d:25:a0")
+
+    def test_colon_and_dash_forms(self):
+        self.assertEqual(d.normalize_mac("1C:4D:89:5D:25:A0"), "1c:4d:89:5d:25:a0")
+        self.assertEqual(d.normalize_mac("1c-4d-89-5d-25-a0"), "1c:4d:89:5d:25:a0")
+
+    def test_garbage_returns_none(self):
+        self.assertIsNone(d.normalize_mac(None))
+        self.assertIsNone(d.normalize_mac(""))
+        self.assertIsNone(d.normalize_mac("xyz"))

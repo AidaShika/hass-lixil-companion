@@ -13,6 +13,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
@@ -20,17 +21,22 @@ from .guardian import IpGuardian
 
 _LOGGER = logging.getLogger(__name__)
 
+PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a managed camera entry and start its IP guardian."""
     guardian = IpGuardian(hass, entry)
-    await guardian.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = guardian
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await guardian.async_start()
     entry.async_on_unload(guardian.async_stop)
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a managed camera entry (guardian stops via on_unload)."""
-    hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
-    return True
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    return unloaded

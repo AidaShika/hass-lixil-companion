@@ -213,6 +213,27 @@ def _norm_mac(mac: str) -> str:
     return ":".join(p.zfill(2) for p in parts)
 
 
+def normalize_mac(raw: str | None) -> str | None:
+    """Normalize a MAC in any common spelling to ``aa:bb:cc:dd:ee:ff``.
+
+    Accepts colon/dash separated forms and the separator-free form that
+    Home Assistant's DHCP discovery hands out (``1c4d895d25a0``).
+    """
+    if not raw:
+        return None
+    text = raw.strip().lower()
+    hexonly = re.sub(r"[^0-9a-f]", "", text)
+    if len(hexonly) == 12 and set(text) <= set("0123456789abcdef:-"):
+        return ":".join(hexonly[i : i + 2] for i in range(0, 12, 2))
+    parts = re.split(r"[:\-]", text)
+    if len(parts) == 6 and all(
+        1 <= len(p) <= 2 and all(c in "0123456789abcdef" for c in p)
+        for p in parts
+    ):
+        return ":".join(p.zfill(2) for p in parts)
+    return None
+
+
 def mac_from_arp_table(arp_text: str, ip: str) -> str | None:
     """Find a MAC for ``ip`` in an ARP dump (arp -a / ip neigh / /proc)."""
     return arp_pairs(arp_text).get(ip)

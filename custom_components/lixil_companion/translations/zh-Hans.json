@@ -2,7 +2,8 @@
   "config": {
     "abort": {
       "dahua_not_installed": "尚未安装 ha-dahua 集成。请先从 HACS 安装 ha-dahua，再重新运行本向导。",
-      "drive_not_implemented": "开发中。"
+      "drive_not_implemented": "开发中。",
+      "not_dahua_camera": "这台设备的响应特征不像大华系摄像头，已跳过设置。"
     },
     "error": {
       "address_required": "请输入摄像头的 IP 地址。",
@@ -51,6 +52,24 @@
         },
         "description": "已自动扫描局域网，下面列出的设备响应特征像大华系摄像头。选择你要添加的那台继续。\n\n如果列表里没有你的摄像头（例如它在另一个子网），请选择手动输入。",
         "title": "选择你的摄像头"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "rescan": {
+        "name": "立即重新扫描"
+      }
+    },
+    "sensor": {
+      "current_ip": {
+        "name": "当前 IP"
+      },
+      "drift_count": {
+        "name": "IP 变更修复次数"
+      },
+      "last_check": {
+        "name": "上次守护检查"
       }
     }
   }

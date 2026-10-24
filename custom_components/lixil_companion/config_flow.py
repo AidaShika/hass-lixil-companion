@@ -193,6 +193,37 @@ class LixilCompanionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    # -- discovery via DHCP ----------------------------------------------
+
+    async def async_step_dhcp(self, discovery_info: Any) -> FlowResult:
+        """A device with a Dahua OUI got a DHCP lease: offer setup.
+
+        HA matches MAC prefixes from the manifest.  We fingerprint the
+        device before bothering the user - other Dahua gear (NVRs,
+        intercoms) shares the same OUIs and must not trigger this flow.
+        """
+        from .discovery import normalize_mac
+
+        ip = getattr(discovery_info, "ip", None)
+        mac = normalize_mac(getattr(discovery_info, "macaddress", None))
+        if not ip:
+            return self.async_abort(reason="not_dahua_camera")
+        for entry in self._async_current_entries():
+            if normalize_mac((entry.data or {}).get(CONF_MAC)) == mac and mac:
+                return self.async_abort(reason="already_configured")
+        await self.async_set_unique_id(mac or ip)
+        self._abort_if_unique_id_configured()
+        fp = await probe_host(ip)
+        if not fp.is_likely_dahua:
+            return self.async_abort(reason="not_dahua_camera")
+        if mac and not fp.mac:
+            import dataclasses
+
+            fp = dataclasses.replace(fp, mac=mac)
+        self.context["title_placeholders"] = {"name": f"LIXIL camera ({ip})"}
+        await self._adopt_fingerprint(fp)
+        return await self.async_step_qr()
+
     # -- step 2: QR paste -------------------------------------------------
 
     async def async_step_qr(

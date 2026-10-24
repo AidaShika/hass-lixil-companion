@@ -9,10 +9,30 @@
   "dependencies": [],
   "documentation": "https://github.com/AidaShika/hass-lixil-companion",
   "domain": "lixil_companion",
-  "integration_type": "service",
+  "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/AidaShika/hass-lixil-companion/issues",
   "name": "LIXIL Companion",
   "requirements": [],
-  "version": "0.1.7"
+  "version": "0.2.0",
+  "dhcp": [
+    {
+      "macaddress": "1C4D89*"
+    },
+    {
+      "macaddress": "3CEF8C*"
+    },
+    {
+      "macaddress": "E0508B*"
+    },
+    {
+      "macaddress": "BC325F*"
+    },
+    {
+      "macaddress": "A0BD1D*"
+    },
+    {
+      "macaddress": "F4B8A1*"
+    }
+  ]
 }

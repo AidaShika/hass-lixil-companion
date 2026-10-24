@@ -10,6 +10,7 @@ sys.path.insert(
 )
 
 import discovery as d  # noqa: E402
+import guardian as guardian_mod  # noqa: E402
 from guardian import GuardianTracker  # noqa: E402
 
 
@@ -61,3 +62,15 @@ class TestGuardianTracker(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MergeStatusTests(unittest.TestCase):
+    def test_merge_applies_and_preserves(self):
+        old = {"last_found_ip": "192.168.11.15", "drift_events": 1}
+        merged = guardian_mod.merge_status(old, last_found_ip="192.168.11.115")
+        self.assertEqual(merged["last_found_ip"], "192.168.11.115")
+        self.assertEqual(merged["drift_events"], 1)
+
+    def test_merge_from_none(self):
+        self.assertEqual(guardian_mod.merge_status(None, reachable=True),
+                         {"reachable": True})

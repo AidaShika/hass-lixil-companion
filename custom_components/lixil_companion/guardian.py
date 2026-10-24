@@ -85,6 +85,16 @@ class GuardianTracker:
         return self.not_found()
 
 
+STATUS_KEY = "status"
+
+
+def merge_status(old: dict | None, **updates) -> dict:
+    """Return entry status dict with ``updates`` applied (pure)."""
+    merged = dict(old or {})
+    merged.update(updates)
+    return merged
+
+
 # --- Home Assistant shell ------------------------------------------------------
 
 
@@ -97,6 +107,40 @@ class IpGuardian:
         self.tracker = GuardianTracker()
         self._unsub_timer = None
         self._unsub_initial = None
+        self._listeners: list = []
+
+    # -- status plumbing for the diagnostic entities ----------------------
+
+    @property
+    def status(self) -> dict:
+        return dict(self.entry.data.get(STATUS_KEY) or {})
+
+    def add_listener(self, callback) -> None:
+        self._listeners.append(callback)
+
+    def remove_listener(self, callback) -> None:
+        if callback in self._listeners:
+            self._listeners.remove(callback)
+
+    def _emit(self) -> None:
+        for callback in list(self._listeners):
+            try:
+                callback()
+            except Exception:  # a broken entity must not kill the check
+                _LOGGER.debug("guardian listener failed", exc_info=True)
+
+    def _persist_status(self, **updates) -> None:
+        merged = merge_status(self.entry.data.get(STATUS_KEY), **updates)
+        if merged != (self.entry.data.get(STATUS_KEY) or {}):
+            self.hass.config_entries.async_update_entry(
+                self.entry,
+                data={**self.entry.data, STATUS_KEY: merged},
+            )
+        self._emit()
+
+    async def async_check_now(self) -> None:
+        """Run one check immediately (the rescan button)."""
+        await self._async_check()
 
     async def async_start(self) -> None:
         from homeassistant.helpers.event import (
@@ -208,11 +252,19 @@ class IpGuardian:
         if not dahua_entry_id or not current_ip:
             return
 
+        from datetime import datetime, timezone
+
+        now_iso = datetime.now(timezone.utc).isoformat()
         found_ip = await self._locate_ip()
         _LOGGER.info(
             "guardian check: located=%s (stored %s)", found_ip, current_ip
         )
         if found_ip is None:
+            self._persist_status(
+                last_check=now_iso,
+                last_found_ip=None,
+                reachable=False,
+            )
             decision = self.tracker.not_found()
             if decision.action == "notify":
                 await self._notify(
@@ -223,6 +275,9 @@ class IpGuardian:
                 )
             return
 
+        self._persist_status(
+            last_check=now_iso, last_found_ip=found_ip, reachable=True
+        )
         decision = self.tracker.found(current_ip, found_ip)
         if decision.action != "update" or not decision.new_ip:
             return
@@ -247,6 +302,16 @@ class IpGuardian:
             self.entry.title,
             current_ip,
             decision.new_ip,
+        )
+        previous = self.status
+        self._persist_status(
+            drift_events=int(previous.get("drift_events") or 0) + 1,
+            last_drift={
+                "from": current_ip,
+                "to": decision.new_ip,
+                "at": now_iso,
+            },
+            last_found_ip=decision.new_ip,
         )
 
         # Verify recovery: the entry's camera should leave 'unavailable'.

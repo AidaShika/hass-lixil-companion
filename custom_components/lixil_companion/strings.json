@@ -2,7 +2,8 @@
   "config": {
     "abort": {
       "dahua_not_installed": "The ha-dahua integration is not installed. Install it from HACS first, then run this setup again.",
-      "drive_not_implemented": "Under development."
+      "drive_not_implemented": "Under development.",
+      "not_dahua_camera": "This device does not answer like a Dahua-based camera, so setup was skipped."
     },
     "error": {
       "address_required": "Please enter the camera IP address.",
@@ -51,6 +52,24 @@
         },
         "description": "Your local network was scanned automatically, and the cameras below answered like Dahua-based devices. Pick yours to continue.\n\nIf your camera is not listed — for example it sits on a different subnet — choose manual entry instead.",
         "title": "Choose your camera"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "rescan": {
+        "name": "Rescan now"
+      }
+    },
+    "sensor": {
+      "current_ip": {
+        "name": "Current IP"
+      },
+      "drift_count": {
+        "name": "IP changes repaired"
+      },
+      "last_check": {
+        "name": "Last guardian check"
       }
     }
   }
