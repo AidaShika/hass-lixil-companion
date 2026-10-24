@@ -1,0 +1,1 @@
+# hass-lixil-companion
