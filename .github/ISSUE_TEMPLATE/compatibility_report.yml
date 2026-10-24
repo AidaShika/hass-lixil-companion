@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping expand the verified-model list. **Never include the security code (SC), the full QR-code contents, a camera password, a full serial number, or a publicly reachable address.** A masked serial such as `59F0…7181` is enough.
+        Thanks for helping expand the verified-model list. **Never include the security code (SC), the full QR-code contents, a camera password, a full serial number, or a publicly reachable address.** A masked serial such as `AB12…7890` is enough.
   - type: input
     id: model
     attributes:
