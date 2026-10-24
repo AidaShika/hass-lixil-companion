@@ -120,3 +120,20 @@ class TestScanOrchestration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CandidateOptionsTests(unittest.TestCase):
+    def test_label_includes_ip_mac_score(self):
+        fp = d.classify("192.168.11.115", mac="1c:4d:89:5d:25:a0",
+                      open_ports=(37777, 554))
+        label = d.candidate_label(fp)
+        self.assertIn("192.168.11.115", label)
+        self.assertIn("1c:4d:89:5d:25:a0", label)
+
+    def test_options_filters_and_sorts(self):
+        strong = d.classify("192.168.11.115", open_ports=(37777, 554))
+        weak = d.classify("192.168.11.50", open_ports=(554,))
+        opts = d.candidate_options([weak, strong])
+        self.assertEqual(list(opts), ["192.168.11.115"])
+
+

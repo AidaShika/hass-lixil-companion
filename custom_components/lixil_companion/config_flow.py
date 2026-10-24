@@ -48,6 +48,21 @@ _LOGGER = logging.getLogger(__name__)
 DAHUA_DOMAIN = "dahua"
 _DRIVE_POLL_SECONDS = 2.0
 _DRIVE_MAX_POLLS = 45  # ~90s worst case for dahua discovery
+_MANUAL_CHOICE = "__manual__"
+
+
+def _local_ip() -> str | None:
+    """This host's primary LAN IP (routing decision only, no traffic)."""
+    import socket
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.connect(("8.8.8.8", 80))
+        return sock.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        sock.close()
 
 
 class LixilCompanionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -62,13 +77,89 @@ class LixilCompanionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._device_type: str | None = None
         self._fingerprint: Fingerprint | None = None
         self._qr: QrData | None = None
+        self._candidates: dict[str, Fingerprint] = {}
 
-    # -- step 1: address ------------------------------------------------
+    # -- step 1: pick a discovered camera (or fall back to manual) -------
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
+        if user_input is not None:
+            choice = user_input.get("device")
+            if choice == _MANUAL_CHOICE:
+                return await self.async_step_manual()
+            fp = self._candidates.get(choice or "")
+            if fp is not None:
+                await self._adopt_fingerprint(fp)
+                return await self.async_step_qr()
+
+        candidates = await self._async_scan()
+        self._candidates = {fp.ip: fp for fp in candidates}
+        if not candidates:
+            return await self.async_step_manual(no_devices=True)
+
+        from .discovery import candidate_options
+
+        options = candidate_options(candidates)
+        options[_MANUAL_CHOICE] = "Enter an IP address manually"
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {vol.Required("device"): vol.In(options)}
+            ),
+        )
+
+    async def _adopt_fingerprint(self, fp: Fingerprint) -> None:
+        self._address = fp.ip
+        self._fingerprint = fp
+        self._device_sn = fp.serial
+        self._mac = fp.mac
+        if not self._mac:
+            from .discovery import mac_for_ip
+
+            self._mac = await self.hass.async_add_executor_job(
+                mac_for_ip, fp.ip
+            )
+
+    async def _async_scan(self) -> list[Fingerprint]:
+        """Scan HA's own /24 (plus subnets of existing entries)."""
+        from .discovery import read_proc_arp, scan_subnet
+
+        bases: list[str] = []
+        local_ip = await self.hass.async_add_executor_job(_local_ip)
+        if local_ip:
+            bases.append(local_ip)
+        for domain in (DOMAIN, DAHUA_DOMAIN):
+            for entry in self.hass.config_entries.async_entries(domain):
+                addr = (entry.data or {}).get(CONF_ADDRESS)
+                if addr and addr not in bases:
+                    bases.append(addr)
+        arp_text = await self.hass.async_add_executor_job(read_proc_arp)
+        found: list[Fingerprint] = []
+        seen: set[str] = set()
+        scanned_subnets: set[str] = set()
+        for base in bases:
+            subnet_key = ".".join(base.split(".")[:3])
+            if subnet_key in scanned_subnets:
+                continue  # same /24 via another base address
+            scanned_subnets.add(subnet_key)
+            for fp in await scan_subnet(base, arp_text=arp_text):
+                if fp.ip not in seen:
+                    seen.add(fp.ip)
+                    found.append(fp)
+        return found
+
+    # -- step 1b: manual address entry ------------------------------------
+
+    async def async_step_manual(
+        self,
+        user_input: dict[str, Any] | None = None,
+        *,
+        no_devices: bool = False,
+    ) -> FlowResult:
         errors: dict[str, str] = {}
+        if no_devices and user_input is None:
+            errors["base"] = "no_devices_found"
         if user_input is not None:
             self._address = (user_input.get(CONF_ADDRESS) or "").strip()
             if not self._address:
@@ -97,7 +188,7 @@ class LixilCompanionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return await self.async_step_qr()
 
         return self.async_show_form(
-            step_id="user",
+            step_id="manual",
             data_schema=vol.Schema({vol.Required(CONF_ADDRESS): str}),
             errors=errors,
         )

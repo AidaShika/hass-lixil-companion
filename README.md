@@ -52,7 +52,7 @@ LIXIL 的住宅摄像头（如 Life Assist2 生态的 LS279）大多是大华 OE
 
 ### 状态
 
-v0.1.5，2026-10-24 在作者家 LS279 上完成端到端实测（发现 → 向导添加 → IP 漂移自愈）。
+v0.1.7，2026-10-24 在作者家 LS279 上完成端到端实测（发现 → 向导添加 → IP 漂移自愈）。
 
 ---
 
@@ -100,7 +100,7 @@ LIXIL の住宅用カメラ（Life Assist2 の LS279 など）の多くは大華
 
 ### 状態
 
-v0.1.5。2026-10-24 に作者宅の LS279 でエンドツーエンド実測済み（検出 → ウィザード追加 → IP 変動の自己修復）。
+v0.1.7。2026-10-24 に作者宅の LS279 でエンドツーエンド実測済み（検出 → ウィザード追加 → IP 変動の自己修復）。
 
 ---
 
@@ -148,7 +148,7 @@ Many LIXIL residential cameras (e.g. the Life Assist2 LS279) are Dahua OEM devic
 
 ### Status
 
-v0.1.5. End-to-end tested on the author's LS279 on 2026-10-24 (discovery → wizard setup → IP-drift self-healing).
+v0.1.7. End-to-end tested on the author's LS279 on 2026-10-24 (discovery → wizard setup → IP-drift self-healing).
 
 ---
 

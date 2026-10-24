@@ -346,13 +346,72 @@ async def scan_subnet(
     arp_text: str = "",
     max_concurrent: int = 48,
 ) -> list[Fingerprint]:
-    """Probe a whole /24; return likely cameras, strongest first."""
+    """Probe a whole /24; return likely cameras, strongest first.
+
+    Two phases: a fast TCP sweep for every host, then the (slower) HTTP
+    fingerprint fetch only for hosts whose port profile could be a
+    Dahua camera.  A naive full probe of a busy /24 took ~46 s from a
+    Home Assistant VM; this keeps a scan in the ~10-20 s range.
+    """
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def _one(ip: str) -> Fingerprint:
+    async def _ports(ip: str) -> tuple[int, ...]:
         async with semaphore:
-            return await probe_host(ip, mac=mac_from_arp_table(arp_text, ip))
+            results = await asyncio.gather(
+                *(probe_port(ip, p) for p in PROBE_PORTS)
+            )
+        return tuple(p for p, ok in zip(PROBE_PORTS, results) if ok)
 
-    prints = await asyncio.gather(*(_one(ip) for ip in subnet_hosts(subnet_ip)))
+    async def _full(ip: str, open_ports: tuple[int, ...]) -> Fingerprint:
+        async with semaphore:
+            server, body = (None, "")
+            for hp in HTTP_PORTS:
+                if hp in open_ports:
+                    server, body = await fetch_http(ip, hp)
+                    break
+            return classify(
+                ip,
+                mac=mac_from_arp_table(arp_text, ip),
+                open_ports=open_ports,
+                http_server=server,
+                http_body=body,
+            )
+
+    hosts = subnet_hosts(subnet_ip)
+    port_sets = await asyncio.gather(*(_ports(ip) for ip in hosts))
+    prints: list[Fingerprint] = []
+    for ip, open_ports in zip(hosts, port_sets):
+        if DAHUA_PRIVATE_PORT in open_ports or (
+            RTSP_PORT in open_ports
+            and any(hp in open_ports for hp in HTTP_PORTS)
+        ):
+            prints.append(await _full(ip, open_ports))
+        else:
+            prints.append(
+                classify(
+                    ip,
+                    mac=mac_from_arp_table(arp_text, ip),
+                    open_ports=open_ports,
+                )
+            )
     likely = [fp for fp in prints if fp.is_likely_dahua]
     return sorted(likely, key=lambda fp: fp.score, reverse=True)
+
+
+def candidate_label(fp: Fingerprint) -> str:
+    """Human-readable one-liner for a scan candidate (setup picker)."""
+    parts = [fp.ip]
+    if fp.mac:
+        parts.append(f"MAC {fp.mac}")
+    parts.append(f"score {fp.score}")
+    return " — ".join(parts)
+
+
+def candidate_options(prints: list[Fingerprint]) -> dict[str, str]:
+    """Map ip -> picker label for likely cameras, strongest first."""
+    likely = sorted(
+        (fp for fp in prints if fp.is_likely_dahua),
+        key=lambda fp: fp.score,
+        reverse=True,
+    )
+    return {fp.ip: candidate_label(fp) for fp in likely}
