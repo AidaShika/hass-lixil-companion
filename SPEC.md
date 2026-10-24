@@ -62,7 +62,7 @@
 4. ✅ 向导 config_flow 代码完成 — 2026-10-24：填 IP（指纹探测）→ 粘 QR 文本 → confirm 步用 Digest 登录设备读真实序列号做权威 SN 校验（dahua_api.py，Digest 实现过 RFC 标准测试向量）→ 程序化驱动 dahua flow（处理 progress/name/create_entry/abort，约 90 秒超时）→ 抓快照校验（失败不回滚、记 verified=False）→ 建伴侣条目（不存 SC）。29 单测全过。未做：真机 HA 内首跑（并入第 6 步端到端回归）
 5. ✅ 守护模块代码完成 — 2026-10-24：每小时核查；先主动扫子网填充 ARP，再从 /proc/net/arp（HA Core 在 Linux 可直读，本次新增该格式解析）按 MAC 反查当前 IP；漂移时 async_update_entry 改 ha-dahua 条目 address 并 reload、同步镜像伴侣条目，随后约 30 秒内验 camera 脱离 unavailable，否则发持久通知。纯决策核 GuardianTracker：连续 3 次找不到才通知、只通知一次、恢复后重置。36 单测全过。未做：真机首跑（并入第 6 步）
 6. ✅ 在作者环境端到端回归（2026-10-24 完成）：LS279 删除条目 → 只用向导重新添加 ✅（经 Samba 装入 HA 并重启；从零全程驱动 23 秒完成，双条目 loaded，快照通。首跑 confirm 曾崩：进程内驱动时 FlowResult["result"] 是 ConfigEntry 对象而非 dict——v0.1.1 已修两种形态，并新增"同地址 dahua 条目已存在则认领"）→ 改路由器分配 IP 验自愈 ✅（.15 → .115：守护定位新址、改 dahua 条目并重载，约 90 秒摄像头恢复、快照 34KB 通。此轮揪出真 bug：向导从未存下 MAC——probe_host 的 mac 参数没人喂——v0.1.3 修复：向导两处经 mac_for_ip 补抓、守护缺 MAC 时指纹扫描定位 + 自动回填；v0.1.4 面包屑日志降为 INFO。回归后当前形态：摄像头固定在 .115，go2rtc 已同步改指 .115 并验证出帧）
-7. README（日文）= 指南改写版；GitHub 发布、HACS 自定义仓库提交
+7. ✅ 发布（2026-10-24）：README 定稿为中/日/英三语版；GitHub 仓库 AidaShika/hass-lixil-companion 已建并推送 v0.1.4 全量 19 个文件（含 MIT LICENSE）；HACS 自定义仓库添加步骤已写进三语 README。未做（可选）：提交 HACS 默认仓库收录
 
 ## 风险备忘
 - ha-dahua 配置流字段/步骤若改版，F3/F2 的驱动要跟着适配 → 驱动层做薄、对字段做版本探测
